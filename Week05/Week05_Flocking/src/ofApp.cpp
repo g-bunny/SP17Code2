@@ -15,7 +15,11 @@ void ofApp::setup(){
 void ofApp::update(){
     for (int i = 0; i < NUMBOIDS; i++){
         myBoids[i].v1 = calculateV1(myBoids, i);
-        myBoids[i].v2 = calculateV2(myBoids, i);        myBoids[i].move();
+        myBoids[i].v2 = calculateV2(myBoids, i);
+        myBoids[i].v3 = calculateV3(myBoids, i);
+        myBoids[i].update();
+        myBoids[i].move();
+        
     }
 }
 
@@ -27,7 +31,7 @@ void ofApp::draw(){
 }
 
 
-ofVec2f ofApp::calculateV1(vector<boid> Boids, int index){
+ofVec3f ofApp::calculateV1(vector<boid> Boids, int index){
     //PROCEDURE rule1(boid bJ)
     //Vector pcJ
     //FOR EACH BOID b
@@ -42,20 +46,24 @@ ofVec2f ofApp::calculateV1(vector<boid> Boids, int index){
     
     //END PROCEDURE
     
-    ofVec2f pCenter;
+    ofVec3f pCenter;
+    int count = 0;
     
     for(int i = 0; i < Boids.size(); i++){
         if(i != index){
-            pCenter += Boids[i].pos;
+            if((Boids[i].pos).distance(Boids[index].pos) < minDist){
+                count ++;
+                pCenter += Boids[i].pos;
+            }
         }
     }
-    pCenter = pCenter / (Boids.size() -1);
-    return (pCenter - Boids[index].pos) / 100;
+    pCenter = pCenter / count;
+    return (pCenter - Boids[index].pos).getNormalized();
 
 
 }
 
-ofVec2f ofApp::calculateV2(vector<boid> Boids, int index){
+ofVec3f ofApp::calculateV2(vector<boid> Boids, int index){
 //    PROCEDURE rule2(boid bJ)
 //    Vector c = 0;
 //    FOR EACH BOID b
@@ -70,19 +78,57 @@ ofVec2f ofApp::calculateV2(vector<boid> Boids, int index){
 //
 //    END PROCEDURE
 
-    ofVec2f dist;
+    ofVec3f dist;
   
     for(int i = 0; i < Boids.size(); i++){
         if(i != index){
-            if((Boids[i].pos).distance(Boids[index].pos) < 50){
+            if((Boids[i].pos).distance(Boids[index].pos) < minDist){
+                
                 dist = dist - (Boids[i].pos - Boids[index].pos);
             }
         }
     }
-    return dist/100;
+    return dist.getNormalized();
 
 }
+//PROCEDURE rule3(boid bJ)
+//
+//Vector pvJ
+//
+//FOR EACH BOID b
+//IF b != bJ THEN
+//pvJ = pvJ + b.velocity
+//END IF
+//END
+//
+//pvJ = pvJ / N-1
+//
+//RETURN (pvJ - bJ.velocity) / 8
+//
+//END PROCEDURE
+//This is similar to Rule 1, however instead of averaging the positions of the other boids we average the velocities. We calculate a 'perceived velocity', pvJ, then add a small portion (about an eighth) to the boid's current velocity.
 
+
+ofVec3f ofApp::calculateV3(vector<boid> Boids, int index){
+    ofVec3f pAveVel;
+    int count = 0;
+    for(int i = 0; i < Boids.size(); i++){
+        if(i != index){
+            if((Boids[i].pos).distance(Boids[index].pos) < minDist){
+                count ++;
+                pAveVel += Boids[i].vel;
+            }
+        }
+    }
+    pAveVel = pAveVel / count;
+    return (pAveVel - Boids[index].vel).getNormalized();
+}
+
+void ofApp::addDirection(ofVec3f dir){
+    for(int i = 0 ; i < myBoids.size(); i++){
+        myBoids[i].destination += dir;
+    }
+}
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
@@ -106,7 +152,9 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-
+    ofVec3f mouseDirection = ofVec3f(x - ofGetWindowWidth()/2, y - ofGetWindowHeight()/2, ofRandom(-100, 100));
+    mouseDirection = mouseDirection.getNormalized();
+    addDirection(mouseDirection);
 }
 
 //--------------------------------------------------------------

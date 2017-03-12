@@ -15,9 +15,15 @@ public:
     void update();
     void drawBoid();
     void move();
+    void wrapAround();
     
-    ofVec2f pos, vel;
-    ofVec2f v1, v2, v3;
     
-    int size = 2;
+    ofVec3f pos, vel;
+    ofVec3f v1, v2, v3;
+    ofVec3f destination;
+    
+    
+    
+    int size = 4;
+    float friction = 0.4;
 };

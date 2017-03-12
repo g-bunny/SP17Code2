@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "boid.hpp"
 
 class ofApp : public ofBaseApp{
 
@@ -21,16 +20,17 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
-		
-    ofVec3f calculateV1(vector<boid> Boids, int index);
     
-    ofVec3f calculateV2(vector<boid> Boids, int index);
-    ofVec3f calculateV3(vector<boid> Boids, int index);
+    ofImage bunny;
     
-    void addDirection(ofVec3f dir);
+    ofImage createRabbit(ofImage myImage);
     
+    //ofImage bunny[10];
     
-    float minDist;
-    const int NUMBOIDS = 100;
-    vector<boid> myBoids;
+    vector<ofImage> rabbit;
+    
+    int xPos;
+    int yPos;
+    
+    //int myArray[10];
 };
